@@ -1,24 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Login from "./Login";
 
 const Navbar = () => {
   const [sticky, setSticky] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Track scroll to make navbar sticky
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setSticky(true);
-      } else {
-        setSticky(false);
-      }
+      setSticky(window.scrollY > 0);
     };
-
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Check localStorage for authentication status on component mount
+  useEffect(() => {
+    const user = localStorage.getItem("User");
+    setIsAuthenticated(!!user);
+  }, []);
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.removeItem("User");
+      setIsAuthenticated(false); // Update state to reflect logout
+    }
+  };
+
+  // Navbar items
   const navItem = (
     <>
       <li>
@@ -30,44 +39,17 @@ const Navbar = () => {
       <li>
         <a href="/about">About</a>
       </li>
-      {/* <li>
-        <a>Contact</a>
-      </li> */}
     </>
   );
 
   return (
     <div
-      className={`w-full fixed top-0 left-0 right-0 z-50 transition-all duration-300 shadow-lg${
+      className={`w-full fixed top-0 z-50 transition-all shadow-lg ${
         sticky ? "bg-opacity-90 shadow-md" : "bg-opacity-100"
       }`}
     >
       <div className="navbar bg-base-100 mx-auto px-4 md:px-10">
         <div className="navbar-start">
-          <div className="dropdown">
-            <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h8m-8 6h16"
-                />
-              </svg>
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              {navItem}
-            </ul>
-          </div>
           <a className="btn btn-ghost text-xl text-pink-400">bookStore</a>
         </div>
 
@@ -75,12 +57,12 @@ const Navbar = () => {
           <ul className="menu menu-horizontal px-1">{navItem}</ul>
         </div>
 
-        <div className="navbar-end space-x-3">
+        <div className="navbar-end">
           <div className="hidden md:flex items-center gap-1">
-            <label className="input flex items-center outline-none">
+            <label className="input flex items-center outline-none border border-gray-600 rounded-md px-2 mr-8">
               <input
                 type="text"
-                className="outline-none"
+                className="outline-none bg-transparent w-full"
                 placeholder="Search"
               />
               <svg
@@ -97,26 +79,27 @@ const Navbar = () => {
               </svg>
             </label>
           </div>
-
           <div>
-            <label className="swap swap-rotate mx-4">
-              <input
-                type="checkbox"
-                className="theme-controller"
-                value="synthwave"
-              />
-            </label>
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="bg-pink-600 text-white px-3 py-2 rounded-lg hover:bg-pink-500 duration-300 cursor-pointer"
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() =>
+                  document.getElementById("my_modal_3").showModal()
+                }
+                className="bg-black text-white px-3 py-2 hover:bg-slate-800 duration-300 border border-pink-600 rounded-lg  cursor-pointer"
+              >
+                Login
+              </button>
+            )}
           </div>
-
-          <div>
-            <a
-              className="bg-black text-white px-3 py-2 rounded-lg hover:bg-slate-800 duration-300 cursor-pointer"
-              onClick={() => document.getElementById("my_modal_3").showModal()}
-            >
-              Login
-            </a>
-            <Login />
-          </div>
+          <Login onLogin={() => setIsAuthenticated(true)} />{" "}
+          {/* Pass onLogin as a prop */}
         </div>
       </div>
       <hr className="w-full opacity-30 border-t-2 border-gray-300" />

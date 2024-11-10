@@ -57,7 +57,7 @@ const Footer = () => {
 
             {/* GitHub */}
             <a
-              href="https://github.com/yourusername"
+              href="https://github.com/dv9-web"
               target="_blank"
               rel="noopener noreferrer"
             >

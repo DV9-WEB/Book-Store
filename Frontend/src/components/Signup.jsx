@@ -1,6 +1,8 @@
+import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -10,14 +12,36 @@ const Signup = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Form Data", data);
+  const onSubmit = async (data) => {
+    const userInfo = {
+      name: data.name,
+      email: data.email,
+      password: data.password, // Corrected typo: password (not passsword)
+    };
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/user/signup",
+        userInfo
+      );
+      console.log(res.data);
+      toast.success("Signup Successfully!");
+      localStorage.setItem("User", JSON.stringify(res.data))
+      navigate("/"); 
+    } catch (err) {
+      console.error(
+        "Error during signup:",
+        err.response ? err.response.data : err
+      );
+      toast.error(
+        "Error: " + (err.response ? err.response.data.message : err.message)
+      );
+    }
   };
 
   return (
     <div className="mt-6 flex items-center justify-center min-h-screen bg-gray-900 relative">
       <div className="w-90% max-w-md bg-gray-800 rounded-lg shadow-lg p-8 text-white relative">
-        {/* Close Button */}
         <button
           onClick={() => navigate("/")}
           className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 font-bold text-lg"
@@ -25,12 +49,10 @@ const Signup = () => {
           ✕
         </button>
 
-        {/* Title */}
         <h2 className="text-2xl font-semibold text-pink-500 mb-6 text-center">
           Create an Account
         </h2>
 
-        {/* Input Fields */}
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <input
             type="text"
@@ -70,7 +92,6 @@ const Signup = () => {
           </button>
         </form>
 
-        {/* Footer Links */}
         <p className="mt-6 text-sm text-gray-400 text-center">
           Already have an account?
           <a
