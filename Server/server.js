@@ -1,42 +1,34 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const bookRoute = require("./route/bookRoute");
-const userRoute = require("./route/userRoute");
-const courseRoute = require("./route/courseRoute");
-const authMiddleware = require("./middleware/authMiddleware")
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+
+import bookRoute from "./route/bookRoute.js";
+import userRoute from "./route/userRoute.js";
+
 const app = express();
-const PORT = process.env.PORT || 3000;
-const DB = process.env.DB;
 
-// Connect to MongoDB
-mongoose
-  .connect(DB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("DB Connection Successful");
-  })
-  .catch((err) => {
-    console.log("DB Connection Error:", err);
-  });
-
-// Middleware
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Frontend URL
-  })
-);
+app.use(cors());
 app.use(express.json());
 
-// Routes
+dotenv.config();
+
+const PORT = process.env.PORT || 4000;
+const DB_URL = process.env.DB_URL;
+
+  mongoose.connect(DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }).then(() => {
+    console.log("Connect to Database")
+  }).catch( (error) => {
+  console.log("Error: ", error);
+})
+
+// defining routes
 app.use("/book", bookRoute);
 app.use("/user", userRoute);
-app.use("/course", authMiddleware, courseRoute); // Use course route here
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is listening on port ${PORT}`);
 });

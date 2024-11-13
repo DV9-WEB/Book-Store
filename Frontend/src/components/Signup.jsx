@@ -1,11 +1,13 @@
-import axios from "axios";
 import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Login from "./Login";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-
-const Signup = () => {
+function Signup() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const from = location.state?.from?.pathname || "/";
   const {
     register,
     handleSubmit,
@@ -14,96 +16,116 @@ const Signup = () => {
 
   const onSubmit = async (data) => {
     const userInfo = {
-      name: data.name,
+      fullname: data.fullname,
       email: data.email,
-      password: data.password, // Corrected typo: password (not passsword)
+      password: data.password,
     };
-
-    try {
-      const res = await axios.post(
-        "http://localhost:3000/user/signup",
-        userInfo
-      );
-      console.log(res.data);
-      toast.success("Signup Successfully!");
-      localStorage.setItem("User", JSON.stringify(res.data))
-      navigate("/"); 
-    } catch (err) {
-      console.error(
-        "Error during signup:",
-        err.response ? err.response.data : err
-      );
-      toast.error(
-        "Error: " + (err.response ? err.response.data.message : err.message)
-      );
-    }
+    await axios
+      .post("http://localhost:3000/user/signup", userInfo)
+      .then((res) => {
+        console.log(res.data);
+        if (res.data) {
+          toast.success("Signup Successfully");
+          navigate(from, { replace: true });
+        }
+        localStorage.setItem("Users", JSON.stringify(res.data.user));
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err);
+          toast.error("Error: " + err.response.data.message);
+        }
+      });
   };
-
   return (
-    <div className="mt-6 flex items-center justify-center min-h-screen bg-gray-900 relative">
-      <div className="w-90% max-w-md bg-gray-800 rounded-lg shadow-lg p-8 text-white relative">
-        <button
-          onClick={() => navigate("/")}
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 font-bold text-lg"
-        >
-          ✕
-        </button>
+    <>
+      <div className="flex h-screen items-center justify-center">
+        <div className=" w-[600px] ">
+          <div className="modal-box">
+            <form onSubmit={handleSubmit(onSubmit)} method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <Link
+                to="/"
+                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              >
+                ✕
+              </Link>
 
-        <h2 className="text-2xl font-semibold text-pink-500 mb-6 text-center">
-          Create an Account
-        </h2>
-
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <input
-            type="text"
-            placeholder="Enter Your Name"
-            className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-            {...register("name", { required: "Name is required" })}
-          />
-          {errors.name && (
-            <span className="text-red-500">{errors.name.message}</span>
-          )}
-
-          <input
-            type="email"
-            placeholder="Enter Your Email"
-            className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-            {...register("email", { required: "Email is required" })}
-          />
-          {errors.email && (
-            <span className="text-red-500">{errors.email.message}</span>
-          )}
-
-          <input
-            type="password"
-            placeholder="Create Password"
-            className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-            {...register("password", { required: "Password is required" })}
-          />
-          {errors.password && (
-            <span className="text-red-500">{errors.password.message}</span>
-          )}
-
-          <button
-            type="submit"
-            className="w-full py-2 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700 transition-colors duration-300"
-          >
-            Sign Up
-          </button>
-        </form>
-
-        <p className="mt-6 text-sm text-gray-400 text-center">
-          Already have an account?
-          <a
-            onClick={() => document.getElementById("my_modal_3").showModal()}
-            className="cursor-pointer text-pink-500 hover:underline ml-1"
-          >
-            Log in
-          </a>
-        </p>
+              <h3 className="font-bold text-lg">Signup</h3>
+              <div className="mt-4 space-y-2">
+                <span>Name</span>
+                <br />
+                <input
+                  type="text"
+                  placeholder="Enter your fullname"
+                  className="w-80 px-3 py-1 border rounded-md outline-none"
+                  {...register("fullname", { required: true })}
+                />
+                <br />
+                {errors.fullname && (
+                  <span className="text-sm text-red-500">
+                    This field is required
+                  </span>
+                )}
+              </div>
+              {/* Email */}
+              <div className="mt-4 space-y-2">
+                <span>Email</span>
+                <br />
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="w-80 px-3 py-1 border rounded-md outline-none"
+                  {...register("email", { required: true })}
+                />
+                <br />
+                {errors.email && (
+                  <span className="text-sm text-red-500">
+                    This field is required
+                  </span>
+                )}
+              </div>
+              {/* Password */}
+              <div className="mt-4 space-y-2">
+                <span>Password</span>
+                <br />
+                <input
+                  type="text"
+                  placeholder="Enter your password"
+                  className="w-80 px-3 py-1 border rounded-md outline-none"
+                  {...register("password", { required: true })}
+                />
+                <br />
+                {errors.password && (
+                  <span className="text-sm text-red-500">
+                    This field is required
+                  </span>
+                )}
+              </div>
+              {/* Button */}
+              <div className="flex justify-around mt-4">
+                <button className="bg-pink-500 text-white rounded-md px-3 py-1 hover:bg-pink-700 duration-200">
+                  Signup
+                </button>
+                <p className="text-xl">
+                  Have account?{" "}
+                  <button
+                    className="underline text-blue-500 cursor-pointer"
+                    onClick={() =>
+                      document.getElementById("my_modal_3").showModal()
+                    }
+                  >
+                    Login
+                  </button>{" "}
+                  <Login />
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
-};
+}
 
 export default Signup;

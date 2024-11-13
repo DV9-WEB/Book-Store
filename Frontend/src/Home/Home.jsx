@@ -1,12 +1,13 @@
 import React from 'react'
-import Hero from '../components/Hero';
 import FreeBook from '../components/FreeBook';
-import Course from '../components/Course';
+import Banner from '../components/Banner';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const Home = () => {
   return (
     <>
-      <Hero />
+      <Banner />
       <FreeBook />
     </>
   );

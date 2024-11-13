@@ -1,20 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import App from "./App.jsx";
+import "./index.css";
 import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext"; // Import AuthProvider
-import "./index.css"; // Import your CSS file
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import AuthProvider from "./context/AuthProvider.jsx";
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
+  <BrowserRouter>
+    <AuthProvider>
+      <div>
         <Navbar />
         <App />
         <Footer />
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+      </div>
+      
+    </AuthProvider>
+  </BrowserRouter>
 );

@@ -1,61 +1,51 @@
-// controller/userController.js
-const User = require("../model/userSchema"); // Make sure this path is correct for your User model
-const bcrypt = require("bcrypt");
-
-const signup = async (req, res) => {
+import User from "../model/userSchema.js";
+import bcryptjs from "bcryptjs";
+export const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const { fullname, email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
-
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+    const hashPassword = await bcryptjs.hash(password, 10);
     const createdUser = new User({
-      name,
-      email,
-      password: hashedPassword,
+      fullname: fullname,
+      email: email,
+      password: hashPassword,
     });
-
     await createdUser.save();
-    res.status(201).json({ message: "User created successfully" });
+    res.status(201).json({
+      message: "User created successfully",
+      user: {
+        _id: createdUser._id,
+        fullname: createdUser.fullname,
+        email: createdUser.email,
+      },
+    });
   } catch (error) {
-    console.error("Error during signup:", error);
+    console.log("Error: " + error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find the user by email
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!user || !isMatch) {
+      return res.status(400).json({ message: "Invalid username or password" });
+    } else {
+      res.status(200).json({
+        message: "Login successful",
+        user: {
+          _id: user._id,
+          fullname: user.fullname,
+          email: user.email,
+        },
+      });
     }
-
-    // Compare the input password with the saved hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // Password is correct, proceed with the login (send user data, generate token, etc.)
-    res.status(200).json({ message: "Login successful" });
   } catch (error) {
-    console.error(error);
+    console.log("Error: " + error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-module.exports = {signup, login};

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose"
 
 const bookSchema = mongoose.Schema({
     name: String, 
@@ -8,4 +8,5 @@ const bookSchema = mongoose.Schema({
     Image: String, 
 })
 
-module.exports = mongoose.model("Book", bookSchema);
+const Book = mongoose.model("Book", bookSchema);
+export default Book
