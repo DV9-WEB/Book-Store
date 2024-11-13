@@ -5,7 +5,7 @@ const Cards = ({ item }) => {
     <div className="transform hover:scale-105 transition-all duration-300 ease-in-out bg-gray-800 text-white shadow-lg rounded-lg overflow-hidden m-4 p-4">
       <figure className="w-full h-56 overflow-hidden flex justify-center">
         <img
-          src="/img/Free-Book.png" // Using the imported image
+          src="../../../assets/images/Free-Book.png"
           alt={item.name}
           className="w-72 object-cover"
         />
